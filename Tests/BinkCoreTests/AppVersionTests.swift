@@ -1,0 +1,58 @@
+import XCTest
+@testable import BinkCore
+
+final class AppVersionTests: XCTestCase {
+    func test_appVersion_canInitialise_withCorrectFullVersionString() {
+        let versionString = "1.2.3"
+        let appVersion = AppVersion(versionString: versionString)
+        XCTAssertNotNil(appVersion)
+    }
+    
+    func test_appVersion_returnsComponentsCorrectly_majorToPatch() {
+        let versionString = "1.2.3"
+        let appVersion = AppVersion(versionString: versionString)
+        XCTAssertEqual(appVersion?.major, 1)
+        XCTAssertEqual(appVersion?.minor, 2)
+        XCTAssertEqual(appVersion?.patch, 3)
+    }
+    
+    func test_appVersion_returnsComponentsCorrectly_majorToMinor() {
+        let versionString = "1.2"
+        let appVersion = AppVersion(versionString: versionString)
+        XCTAssertEqual(appVersion?.major, 1)
+        XCTAssertEqual(appVersion?.minor, 2)
+        XCTAssertNil(appVersion?.patch)
+    }
+    
+    func test_appVersion_returnsComponentsCorrectly_majorOnly() {
+        let versionString = "1"
+        let appVersion = AppVersion(versionString: versionString)
+        XCTAssertEqual(appVersion?.major, 1)
+        XCTAssertNil(appVersion?.minor)
+        XCTAssertNil(appVersion?.patch)
+    }
+    
+    func test_appVersion_returnsComponentsCorrectly_withMalformedVersionString() {
+        let versionString = "1.a.b"
+        let appVersion = AppVersion(versionString: versionString)
+        XCTAssertEqual(appVersion?.major, 1)
+        XCTAssertNil(appVersion?.minor)
+        XCTAssertNil(appVersion?.patch)
+    }
+    
+    func test_appVersion_returnsComponentsCorrectly_withLongVersionString() {
+        let versionString = "1.2.3.4"
+        let appVersion = AppVersion(versionString: versionString)
+        XCTAssertEqual(appVersion?.versionString, "1.2.3")
+    }
+    
+    func test_isMoreRecentThanVersion_returnsCorrectly() {
+        if let currentAppVersion = AppVersion(versionString: "1.2.3"), let recommendedLiveAppVersion = AppVersion(versionString: "1.2.4") {
+            XCTAssertTrue(recommendedLiveAppVersion.isMoreRecentThanVersion(currentAppVersion))
+            
+            if let recommendedLiveAppVersion = AppVersion(versionString: "1.2.1") {
+                XCTAssertFalse(recommendedLiveAppVersion.isMoreRecentThanVersion(currentAppVersion))
+            }
+        }
+    }
+}
